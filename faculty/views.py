@@ -68,31 +68,33 @@ def updatedprofile(request):
     return render(request,'updatedprofile.html',{'clas':clas,'fac':faco.get(),'dept':dept.get()})
 
 def editatt(request):
-    dept=Department.objects.filter(dept_id=dep)
-    faco=Faculty.objects.filter(fac_id=fac)
-    teach=Teache.objects.filter(fac_id=fac)
-    clao=Class.objects.filter(class_id=cla)
-    couo=Course.objects.filter(course_id=cou)
-    stud=Student.objects.all().filter(class_id=cla)
-    atte=Attendance.objects.all().filter(course_id=cou,fac_id=fac).order_by('-date')
-    if request.method=="POST":
-        dict=request.POST
+    dept = Department.objects.filter(dept_id=dep)
+    faco = Faculty.objects.filter(fac_id=fac)
+    teach = Teache.objects.filter(fac_id=fac)
+    clao = Class.objects.filter(class_id=cla)
+    couo = Course.objects.filter(course_id=cou)
+    stud = Student.objects.all().filter(class_id=cla)
+    atte = Attendance.objects.all().filter(course_id=cou, fac_id=fac).order_by('-date')
+
+    if request.method == "POST":
+        dict_data = request.POST
         for stud1 in stud:
-            if stud1.stud_id in dict.keys():
-                if dict.get('bate'):
-                    try:
-                        a=Attendance.objects.filter(stud_id=stud1,fac_id=faco.get(),course_id=couo.get(),date=dict.get('bate')).get()
-                        if a.presence:
-                            p=0
-                        else:
-                            p=1
-                        Attendance.objects.filter(stud_id=stud1,fac_id=faco.get(),course_id=couo.get(),date=dict.get('bate')).update(presence=p)
-                        messages.success(request, 'Attendance Edited.')
-                    except:
-                        print(dict.get('bate').exists())
-                        messages.error(request, 'Value does not Exist')
-                        return redirect('updatedadd')
+            if stud1.stud_id in dict_data:
+                try:
+                    # Update the attendance for the current student
+                    a = Attendance.objects.filter(stud_id=stud1, fac_id=faco.get(), course_id=couo.get())
+                    # Flip the presence status
+                    for a in a:
+                        a.presence = not a.presence
+                        a.save()
+                    messages.success(request, 'Attendance Edited.')
+                except Attendance.DoesNotExist:
+                    messages.error(request, 'Attendance record does not exist.')
+        
+        return redirect('updatedadd')
+            
     return redirect('updatedadd')
+
 
 def updatedindex(request):
     dept=Department.objects.filter(dept_id=dep)
@@ -146,27 +148,30 @@ def updatedadd(request):
     atte=Attendance.objects.all().filter(course_id=cou,fac_id=fac).order_by('-date')
     return render(request,'updatedadd.html',{'stud' : stud,'fac':faco.get(),'clat':clao.get(),'cout':couo.get(),'dept':dept,'atte':atte,'clas':clas})
 
-def fac_report(request):
-    if request.method=="POST":
-        dict=request.POST
-        for i in dict.keys():
-            if i!='csrfmiddlewaretoken':
-                j=i
-                break
-        n,p=j[:j.find('$')],j[j.find('$')+1:]
-        tial(n,p)
-    a=[1]
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="AttendanceReport.csv"'
-    stud=Student.objects.all().filter(class_id=cla)
-    atte=Attendance.objects.all().filter(course_id=cou,fac_id=fac).order_by('stud_id','date')
-    writer = csv.writer(response)
+import csv
 
-    writer.writerow(['Stud-Id','Class-Id','Dept','Course-Id','Date','Status'])
-    for i in atte:
-        if i.stud_id in stud:
-            if i.presence:
-                writer.writerow([i.stud_id.stud_id,cla,dep,cou,i.date,'Present'])
-            else:
-                writer.writerow([i.stud_id.stud_id,cla,dep,cou,i.date,'Absent'])
-    return response
+from django.http import HttpResponse
+from login.models import Student, Attendance
+
+def fac_report(request):
+    if request.method == "POST":
+        # Assuming 'cla' and 'cou' are set globally as in the previous code
+        # Retrieve the relevant students and attendance records
+        stud = Student.objects.filter(class_id=cla)
+        atte = Attendance.objects.filter(course_id=cou, fac_id=fac).order_by('stud_id', 'date')
+
+        # Prepare the response as a CSV file
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="AttendanceReport.csv"'
+        writer = csv.writer(response)
+
+        # Write the CSV header
+        writer.writerow(['Stud-Id', 'Class-Id', 'Dept', 'Course-Id', 'Date', 'Status'])
+
+        # Write attendance data for each student
+        for student in stud:
+            for attendance_record in atte.filter(stud_id=student):
+                status = 'Present' if attendance_record.presence else 'Absent'
+                writer.writerow([student.stud_id, cla, dep, cou, attendance_record.date, status])
+
+        return response

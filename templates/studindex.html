@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.1.1">
-    <title>SMART ATTENDANCE MANAGER</title>
+    <title>class room</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/dashboard/">
 
@@ -33,7 +33,7 @@
 		-webkit-appearance: none;  /*Removes default chrome and safari style*/
 		-moz-appearance: none; /* Removes Default Firefox style*/
         appearance:none;
-		background: #3fcc9d url(img/select-arrow.png) no-repeat 90% center;
+		background: #e18a10 url(img/select-arrow.png) no-repeat 90% center;
 		width: 100px; /*Width of select dropdown to give space for arrow image*/
 		text-indent: 0.01px; /* Removes default arrow from firefox*/
 		text-overflow: "";  /*Removes default arrow from firefox*/ /*My custom style for fonts*/
@@ -45,19 +45,19 @@
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #3aaf9f;">
+    <nav class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow" style="background-color: #e18a10;">
   <a class="navbar-brand" href="#">
     <img src="{% static 'img/logow.png' %}" width="25" height="25" class="d-inline-block align-top" alt="">
-    SA
+    CLASS ROOM
   </a>
   <nav class="navbar navbar-dark p-1">
-  <span class="navbar-text">
+  <span class="navbar-brand">
     STUDENT ACCOUNT
   </span>
 </nav>
   <ul class="navbar-nav px-3">
     <li class="nav-item text-nowrap">
-      <a class="nav-link" href={% url 'logout'  %}>Log Out <span data-feather="log-out"></a>
+      <a class="navbar-brand" href={% url 'logout'  %}>Log Out <span data-feather="log-out"></a>
     </li>
   </ul>
 </nav>
@@ -142,5 +142,10 @@
 	  <script src="{% static 'assets/dist/js/bootstrap.bundle.min.js' %}"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
-        <script src="{% static 'js/dashboard.js' %}"></script></body>
+        <script src="{% static 'js/dashboard.js' %}"></script>
+        <div style="position: fixed; bottom: 10px; right: 15px; padding: 15px; color: black; font-weight: bold;">
+          <div>by</div>
+          <div style="margin-top: 5px;">VRS</div>
+      </div> 
+      </body>
 </html>
